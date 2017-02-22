@@ -1,1 +1,2 @@
-구글 스크립트 github
+Google ScriptApps Script 
+
