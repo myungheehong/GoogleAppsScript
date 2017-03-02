@@ -16,6 +16,9 @@
 2017.02.27 sheetname 동적으로 가져오도록 변수로 변경
 2017.02.27 jdbc 연결과 쿼리 부분을 구분 오류를 위해 try catch 변경
 2017.03.01 server 정보 가져오기 기능을 getserverinfo로 변경함(기능 확인 중)
+2017.03.02 GetServerInfo() 객체 방식으로 변경
+           GetParameter() 추가
+
 
 이슈사항
 1. mssql 시스템 데이터 조회 시 접속 오류(문제해결완료)
@@ -23,7 +26,8 @@
 
 */
 
-
+// 2017.03.02 함수 사용을 위해 전역변수로 변경함 
+var sheet_name = SpreadsheetApp.getActiveSheet().getName();
 
 function conndatabase() {   
     
@@ -40,19 +44,30 @@ function conndatabase() {
   //var db = SpreadsheetApp.getActive().getSheetByName(sheet_name).getRange(5,8).getValue();
 
   // 2017.03.01 데이터 가져오는 것을 함수로 변경함(관리의 유용성) -> 추후 객체로 변경 예정
-  var address = getserverinfo('address');
-  var address_port = getserverinfo('address_port');
-  var db = getserverinfo('db');
-  var user = getserverinfo('user');
-  var userpwd = getserverinfo('userpwd');
-  var dbsystem = getserverinfo('dbsystem');
-
-
-  var maxcolumn = SpreadsheetApp.getActive().getSheetByName(sheet_name).getRange(7,5).getValue();
-  var maxrow = SpreadsheetApp.getActive().getSheetByName(sheet_name).getRange(7,2).getValue();
   
-  var connQuery = SpreadsheetApp.getActive().getSheetByName(sheet_name).getRange(6,2).getValue();
-    //Logger.log(connQuery);
+  var getserver = null;
+  var getparameter = null;
+  
+  var getserver = new GetServerInfo();
+  var getparameter = new GetParameter();
+
+  //var address = getserverinfo('address');
+  //var address_port = getserverinfo('address_port');
+  var address = getserver.address;
+  var address_port = getserver.address_port;
+  var db = getserver.db;
+  var user = getserver.user;
+  var userpwd = getserver.userpwd;
+  var dbsystem = getserver.dbsystem; 
+
+  var maxcolumn = getparameter.maxcolumn;
+  var maxrow = getparameter.maxrow;
+  var connQuery = getparameter.connQuery;
+  
+  //var maxcolumn = SpreadsheetApp.getActive().getSheetByName(sheet_name).getRange(7,5).getValue();
+  //var maxrow = SpreadsheetApp.getActive().getSheetByName(sheet_name).getRange(7,2).getValue();  
+  //var connQuery = SpreadsheetApp.getActive().getSheetByName(sheet_name).getRange(6,2).getValue();
+  //Logger.log(connQuery);
   
   var connection = null;
   var result = null;
@@ -144,28 +159,20 @@ function conndatabase() {
   connection.close();
 }
 
-function getserverinfo(getType){
-  
-  // 시트이름 체크
-  var sheet_name = SpreadsheetApp.getActiveSheet().getName();
-  
-  if (getType == 'address') {
-    this.returnvalue = SpreadsheetApp.getActive().getSheetByName(sheet_name).getRange(5,2).getValue();
-  } else if (getType == 'address_port') {
-    this.returnvalue = SpreadsheetApp.getActive().getSheetByName(sheet_name).getRange(5,10).getValue();
-  } else if (getType == 'db') {
-    this.returnvalue = SpreadsheetApp.getActive().getSheetByName(sheet_name).getRange(5,8).getValue(); 
-  } else if (getType == 'user') {
-    this.returnvalue = SpreadsheetApp.getActive().getSheetByName(sheet_name).getRange(5,4).getValue();
-  } else if (getType == 'userpwd') {
-    this.returnvalue = SpreadsheetApp.getActive().getSheetByName(sheet_name).getRange(5,6).getValue();
-  } else if (getType == 'dbsystem') {
-    this.returnvalue = SpreadsheetApp.getActive().getSheetByName(sheet_name).getRange(4,2).getValue();
-  }
-  else {
-    this.returnvalue = null; 
-  }
-  
-  return this.returnvalue;
-  //Logger.log(this.returnvalue);
+function GetServerInfo(){ 
+  this.address = SpreadsheetApp.getActive().getSheetByName(sheet_name).getRange(5,2).getValue();
+  this.address_port = SpreadsheetApp.getActive().getSheetByName(sheet_name).getRange(5,10).getValue();
+  this.db = SpreadsheetApp.getActive().getSheetByName(sheet_name).getRange(5,8).getValue(); 
+  this.user = SpreadsheetApp.getActive().getSheetByName(sheet_name).getRange(5,4).getValue();
+  this.userpwd = SpreadsheetApp.getActive().getSheetByName(sheet_name).getRange(5,6).getValue();
+  this.dbsystem = SpreadsheetApp.getActive().getSheetByName(sheet_name).getRange(4,2).getValue();
+}
+
+function GetParameter() {
+  this.maxcolumn = SpreadsheetApp.getActive().getSheetByName(sheet_name).getRange(7,5).getValue();
+  this.maxrow = SpreadsheetApp.getActive().getSheetByName(sheet_name).getRange(7,2).getValue();  
+  this.connQuery = SpreadsheetApp.getActive().getSheetByName(sheet_name).getRange(6,2).getValue();
+  //var maxcolumn = SpreadsheetApp.getActive().getSheetByName(sheet_name).getRange(7,5).getValue();
+  //var maxrow = SpreadsheetApp.getActive().getSheetByName(sheet_name).getRange(7,2).getValue();  
+  //var connQuery = SpreadsheetApp.getActive().getSheetByName(sheet_name).getRange(6,2).getValue();
 }
